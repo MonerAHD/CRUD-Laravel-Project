@@ -1,0 +1,27 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+#title, #description, #formFile{
+    box-shadow: none;
+    border: 1px solid black;
+}
+#title:focus, #description:focus{
+    box-shadow: 0 0 5px rgb(243, 22, 22);
+    border: 1px solid rgb(243, 22, 22);
+}
+#btn{
+    padding: 10px 15px;
+    border-radius: 10px;
+    width: 150px;
+}
+.card{
+    display: inline-flex;
+    flex-direction: column;
+    margin-right: 20px;
+}
+#image{
+    height: 400px;
+    object-fit: cover;
+}
