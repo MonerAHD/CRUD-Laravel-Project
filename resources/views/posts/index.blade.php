@@ -10,6 +10,19 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
+    @if (session('updated'))
+        <div class="alert alert-success alert-dismissible fade show mx-4" role="alert">
+            {{session('updated')}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if (session('deleted'))
+        <div class="alert alert-danger alert-dismissible fade show mx-4" role="alert">
+            {{session('deleted')}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
 
     <div class="wrraper mx-4">
         <h1 class="text-center text-danger border border-dark py-2">Hello From Home Page</h1>
@@ -26,9 +39,13 @@
                     <h3 class="card-title">Card Description</h3>
                     <p class="card-text">{{ $post->description }}</p>
                     <hr>
-                    <a href=" {{ route('posts.show') }} " class="btn btn-outline-primary">Show</a>
-                    <a href=" {{ route('posts.edit') }} " class="btn btn-outline-primary">Edit</a>
-                    <a href="#" class="btn btn-outline-danger">Delete</a>
+                    <a href=" {{ route('posts.show' , $post->id) }} " class="btn btn-outline-primary">Show</a>
+                    <a href=" {{ route('posts.edit' , $post->id) }} " class="btn btn-outline-primary">Edit</a>
+                    <form action="{{ route('posts.destroy' , $post->id) }}" method="POST" class="d-inline-block">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                    </form>
                 </div>
             </div>
 

@@ -60,8 +60,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        // Just go to the show page 
-        return view('posts.show');
+        return view('posts.show', ['post' => $post]);
     }
 
     /**
@@ -69,8 +68,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        // Just go to the edit page
-        return view('posts.edit');
+        return view('posts.edit', ['post' => $post]);
     }
 
     /**
@@ -78,7 +76,29 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        // Validate Fields
+        $request->validate([
+            'title'=> 'required | min:3',
+            'description'=> 'required | min:3', 
+        ]);
+        // Store the Image name and uplode date in the storage folder (storage/images)
+        if ($request->hasFile('image')) {
+            $imageName = $request->file('image')->getClientOriginalName() . "-" . time() . $request->file('image')->getClientOriginalExtension();
+            $request->image->move(public_path('storage/images'), $imageName);
+        }else{
+            $imageName = $post->image;
+        }
+
+        $post->update([
+            'title'=> $request->input('title'),
+            'description'=> $request->input('description'),
+            'image'=> $imageName
+        ]);
+
+        // Message to confirm Post creation
+        session()->flash('updated', 'Post Updated Successfully');
+
+        return redirect()->route('posts.index');
     }
 
     /**
@@ -86,6 +106,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        session()->flash('deleted', 'Post Deleted Successfully');
+        return redirect()->route('posts.index');
     }
 }
