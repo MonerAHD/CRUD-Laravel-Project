@@ -13,4 +13,11 @@ class Post extends Model
         'description',
         'image',
     ];
+
+
+    public function getImagePathsAttribute()
+    {
+        return json_decode($this->image , true);
+    }
 }
+

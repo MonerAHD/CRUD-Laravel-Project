@@ -31,8 +31,14 @@
         </div>
         @forelse ($posts as $post)
             <div class="card mt-3" style="width: 21.3rem;">
-                <img src="{{ asset('storage/images/' . $post->image) }}" class="card-img-top img-fluid" id="image"
-                    alt="Photo">
+                @if ($post->image)
+                    @php 
+                        $imageNameJSON = json_decode($post->image, true);
+                    @endphp
+                    @foreach ($imageNameJSON as $images)    
+                    <img src="{{ asset('storage/' . $images) }}" class="card-img-top img-fluid" id="image" alt="Photo">
+                    @endforeach
+                @endif   
                 <div class="card-body">
                     <h4>title</h4>
                     <p>{{ $post->title }}</p>

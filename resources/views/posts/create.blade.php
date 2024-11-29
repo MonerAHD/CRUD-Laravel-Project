@@ -25,7 +25,7 @@
             </div>
             <div class="mb-3">
                 <label for="formFile" class="form-label fs-4">Choose Image</label>
-                <input class="form-control" name="image" type="file" id="formFile">
+                <input class="form-control" name="image[]" type="file" id="formFile" multiple>
             </div>
             <button type="submit" name="submit" id="btn" class="btn btn-outline-danger mt-2 fs-5">Create</button>
             <a href="{{ route('posts.index') }}" id="btn" class="btn btn-outline-primary mt-2 ms-2 fs-5">Back</a>

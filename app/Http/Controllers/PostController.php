@@ -35,24 +35,36 @@ class PostController extends Controller
         $request->validate([
             'title'=> 'required | min:3',
             'description'=> 'required | min:3',
-            'image'=> 'required | image | mimes:jpeg,png,jpg,gif' 
+            'image.*'=> 'required | image | mimes:jpeg,png,jpg,gif' // 'image.*' => to check each image individually
         ]);
+
+        $imagePaths = []; // Array to store the image paths
+
         // Store the Image name and uplode date in the storage folder (storage/images)
         if ($request->hasFile('image')) {
-            $imageName = $request->file('image')->getClientOriginalName() . "-" . time() . $request->file('image')->getClientOriginalExtension();
-            $request->image->move(public_path('storage/images'), $imageName);
+            foreach ($request->file('image') as $image) {
+                $imageName = $image->getClientOriginalName() . "-" . time() . $image->getClientOriginalExtension();
+                $image->move(public_path('images'), $imageName); 
+                $imagePaths[] = public_path('images') . $imageName;
+            }
         }
+
+        $imageNameJSON = json_encode($imagePaths);  // to convert array to json and image path encryption.
 
         Post::create([
             'title'=> $request->input('title'),
             'description'=> $request->input('description'),
-            'image'=> $imageName
+            'image'=> $imageNameJSON
         ]);
+
 
         // Message to confirm Post creation
         session()->flash('success', 'Post Created Successfully');
 
         return redirect()->route('posts.index');
+
+        // dd($imageNameJSON);
+
     }
 
     /**
@@ -81,18 +93,26 @@ class PostController extends Controller
             'title'=> 'required | min:3',
             'description'=> 'required | min:3', 
         ]);
+
+        $imagePaths = []; // Array to store the image paths
+
         // Store the Image name and uplode date in the storage folder (storage/images)
         if ($request->hasFile('image')) {
-            $imageName = $request->file('image')->getClientOriginalName() . "-" . time() . $request->file('image')->getClientOriginalExtension();
-            $request->image->move(public_path('storage/images'), $imageName);
+            foreach ($request->file('image') as $image) {
+                $imageName = $image->getClientOriginalName() . "-" . time() . $image->getClientOriginalExtension();
+                $image->move(public_path('images'), $imageName); 
+                $imagePaths[] = 'storage/images/' . $imageName;
+            }
         }else{
-            $imageName = $post->image;
+            $imagePaths = json_decode($post->image, true); // true : to convert json string to array
         }
+
+        $imageNameJSON = json_encode($imagePaths); // to convert array to json and image path encryption.
 
         $post->update([
             'title'=> $request->input('title'),
             'description'=> $request->input('description'),
-            'image'=> $imageName
+            'image'=> $imageNameJSON
         ]);
 
         // Message to confirm Post creation
