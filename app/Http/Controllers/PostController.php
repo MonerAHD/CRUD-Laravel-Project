@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\User;
 use Dotenv\Validator;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PostController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */
@@ -23,6 +26,7 @@ class PostController extends Controller
      */
     public function create()
     {
+        $this->authorize('manageUser', User::class);
         return view('posts.create');
     }
 
@@ -43,13 +47,13 @@ class PostController extends Controller
         // Store the Image name and uplode date in the storage folder (storage/images)
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $image) {
-                $imageName = $image->getClientOriginalName() . "-" . time() . $image->getClientOriginalExtension();
-                $image->move(public_path('images'), $imageName); 
-                $imagePaths[] = public_path('images') . $imageName;
+                $imageName = $image->getClientOriginalName() . "-" . time();
+                $path = $image->storeAs('images', $imageName, 'public');
+                $imagePaths[] = $path;
             }
         }
 
-        $imageNameJSON = json_encode($imagePaths);  // to convert array to json and image path encryption.
+        $imageNameJSON = json_encode($imagePaths); // to convert array to json and image path encryption.
 
         Post::create([
             'title'=> $request->input('title'),
@@ -99,9 +103,9 @@ class PostController extends Controller
         // Store the Image name and uplode date in the storage folder (storage/images)
         if ($request->hasFile('image')) {
             foreach ($request->file('image') as $image) {
-                $imageName = $image->getClientOriginalName() . "-" . time() . $image->getClientOriginalExtension();
-                $image->move(public_path('images'), $imageName); 
-                $imagePaths[] = 'storage/images/' . $imageName;
+                $imageName = $image->getClientOriginalName() . "-" . time();
+                $path = $image->storeAs('images', $imageName, 'public');
+                $imagePaths[] = $path;
             }
         }else{
             $imagePaths = json_decode($post->image, true); // true : to convert json string to array

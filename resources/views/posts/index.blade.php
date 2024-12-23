@@ -27,18 +27,26 @@
     <div class="wrraper mx-4">
         <h1 class="text-center text-danger border border-dark py-2">Hello From Home Page</h1>
         <div class="mt-3 d-flex justify-content-start">
-            <a href="{{ route('posts.create') }}" class="btn btn-primary fs-5">Create a New Card</a>
+            @can ('manageUser')
+                <a href="{{ route('posts.create') }}" class="btn btn-primary fs-5">Create a New Card</a>
+            @endcan
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button class="btn btn-outline-danger ms-2" id="btn">Logout</button>
+            </form>
         </div>
         @forelse ($posts as $post)
             <div class="card mt-3" style="width: 21.3rem;">
                 @if ($post->image)
-                    @php 
-                        $imageNameJSON = json_decode($post->image, true);
+                    @php
+                        $imagePaths = json_decode($post->image, true);
                     @endphp
-                    @foreach ($imageNameJSON as $images)    
-                    <img src="{{ asset('storage/' . $images) }}" class="card-img-top img-fluid" id="image" alt="Photo">
+                    @foreach ($imagePaths as $imagePath)
+                    @if (is_string($imagePath))
+                        <img src="{{ asset('storage/' . $imagePath) }}" class="card-img-top img-fluid" id="image" alt="Photo">
+                    @endif
                     @endforeach
-                @endif   
+                @endif
                 <div class="card-body">
                     <h4>title</h4>
                     <p>{{ $post->title }}</p>

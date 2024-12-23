@@ -7,12 +7,19 @@
     <div class="wrraper mx-4">
         <h1 class="text-center text-danger border border-dark py-2">Hello From Show Page</h1>
 
-        <div class="card mb-3" style="width: 100%; height: 350px">
+        <div class="card mb-3" style="width: 100%; height: 485px">
             <div class="row g-0">
-                <div class="col-md-4">
-                    <img src="{{ asset('storage/images/' . $post->image) }}" class="img-fluid rounded-start" style="height: 350px; width: 350px;" alt="Photo">
-                </div>
-                <div class="col-md-8 mt-5" style="margin-left: -40px">
+                @if ($post->image)
+                    @php
+                        $imagePaths = json_decode($post->image, true);
+                    @endphp
+                    @foreach ($imagePaths as $imagePath)
+                    @if (is_string($imagePath))
+                        <img src="{{ asset('storage/' . $imagePath) }}" class="card-img-top img-fluid w-25" alt="Photo">
+                    @endif
+                    @endforeach
+                @endif
+                <div class="col-md-8 mt-5">
                     <div class="card-body">
                         <h4 class="card-title">Card title</h4>
                         <p class="card-text">{{ $post->title }}</p>

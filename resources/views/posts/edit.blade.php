@@ -18,16 +18,23 @@
             @method('POST')
             <div class="mb-3 mt-4">
                 <label for="title" class="form-label fs-4">Title</label>
-                <input type="text" name="title" class="form-control" id="title" placeholder="New Title" value="{{ $post->title }}">
+                <input type="text" name="title" class="form-control" id="title" placeholder="New Title"
+                    value="{{ $post->title }}">
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label fs-4">Description</label>
                 <textarea class="form-control" name="description" id="description" rows="3"
                     placeholder="Write a New Description Here">{{ $post->description }}</textarea>
             </div>
-            <div class="mb-3">
-                <img src="{{ asset('storage/images/' . $post->image) }}" alt="Photo" for="image" style="width: 300px; height: 250px">
-            </div>
+            @if ($post->image)
+                @php
+                    $imageNameJSON = json_decode($post->image, true);
+                @endphp
+                @foreach ($imageNameJSON as $images)
+                    <img src="{{ asset('storage/' . $images) }}" class="card-img-top img-fluid w-25" id="image"
+                        alt="Photo">
+                @endforeach
+            @endif
             <div class="mb-3">
                 <label for="formFile" class="form-label fs-4">Change Image</label>
                 <input class="form-control" name="image[]" type="file" id="formFile" multiple>
