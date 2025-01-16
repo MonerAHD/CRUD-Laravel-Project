@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +22,21 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'user_image',
     ];
+
+    public function posts(){
+
+        return $this->hasMany(Post::class); // إنشاء علاقة بين المستخدمين و البوستات
+
+    }
+
+    public function comments(){
+
+        return $this->hasMany(Comment::class); // إضافة العلاقة بين التعليقات و المستخدمين في نموذج المستخدمين
+
+    }
 
     /**
      * The attributes that should be hidden for serialization.

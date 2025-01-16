@@ -3,11 +3,11 @@
     padding: 0;
     box-sizing: border-box;
 }
-#title, #description, #formFile{
+#title, #description, #formFile, #category{
     box-shadow: none;
     border: 1px solid black;
 }
-#title:focus, #description:focus{
+#title:focus, #description:focus, #category:focus{
     box-shadow: 0 0 5px rgb(243, 22, 22);
     border: 1px solid rgb(243, 22, 22);
 }
@@ -24,4 +24,12 @@
 #image{
     height: 400px;
     object-fit: cover;
+}
+#email, #password, #confirmation_password, #role, #user_image, #content{
+    box-shadow: none;
+    border-color: rgba(0, 0, 0, 0.177);
+}
+#email:focus,#name:focus ,#password:focus, #confirmation_password:focus, #content:focus{
+    box-shadow: 0 0 5px red;
+    border: 1px solid red;
 }

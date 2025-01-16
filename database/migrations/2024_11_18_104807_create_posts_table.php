@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->nullable();
-            $table->string('description');
+            $table->string('category');
+            $table->string('title');
+            $table->text('description');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // ربط المستخدم بالبوست
             $table->timestamps();
         });
     }

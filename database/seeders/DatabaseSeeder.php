@@ -6,6 +6,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Contracts\Permission;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,17 +17,26 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+
+        // $this->call(PermissionsTableSeeder::class);
+        // $this->call(RolesTableSeeder::class);
+
+
+
         // User::create([
-        //     'name' => 'Moner Ahmad',
+        //     'name' => 'Moner',
         //     'email' => 'admin@gmail.com',
-        //     'password' => Hash::make('password'),
-        //     'is_admin' => true
+        //     'password' => Hash::make('12345678'),
+        //     'confirmation_password' => Hash::make('12345678'),
+        //     'role' => 'admin',
+        //     'user_image'=> '',
         // ]);
-        User::create([
-            'name' => 'Mohamad Gothani',
-            'email' => 'user@gmail.com',
-            'password' => Hash::make('mohamad'),
-            'is_admin' => false
-        ]);
+        // User::create([
+        //     'name' => 'ali',
+        //     'email' => 'ali@gmail.com',
+        //     'password' => Hash::make('12345678'),
+        //     'role' => 'user',
+        //     'user_image'=> '',
+        // ]);
     }
 }

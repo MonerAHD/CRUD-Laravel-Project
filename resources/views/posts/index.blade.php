@@ -1,4 +1,4 @@
-@extends('layout.app')
+@extends('layout.after_login')
 
 @section('title', 'Home | Page')
 
@@ -27,45 +27,59 @@
     <div class="wrraper mx-4">
         <h1 class="text-center text-danger border border-dark py-2">Hello From Home Page</h1>
         <div class="mt-3 d-flex justify-content-start">
-            @can ('manageUser')
-                <a href="{{ route('posts.create') }}" class="btn btn-primary fs-5">Create a New Card</a>
-            @endcan
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button class="btn btn-outline-danger ms-2" id="btn">Logout</button>
-            </form>
+            <a href="{{ route('posts.create') }}" class="btn btn-primary fs-5 me-2">Create a New Post</a>
+            @if(Auth::check() && Auth::user()->role == 'admin')
+            <a href="{{ route('admin.index') }}" class="btn btn-outline-warning fs-5">Dashboard</a>
+            @endif
         </div>
         @forelse ($posts as $post)
-            <div class="card mt-3" style="width: 21.3rem;">
-                @if ($post->image)
-                    @php
-                        $imagePaths = json_decode($post->image, true);
-                    @endphp
-                    @foreach ($imagePaths as $imagePath)
-                    @if (is_string($imagePath))
-                        <img src="{{ asset('storage/' . $imagePath) }}" class="card-img-top img-fluid" id="image" alt="Photo">
-                    @endif
-                    @endforeach
-                @endif
+            <div class="card mt-3" style="width: 21.3rem; height: fit-content;">
+                <img src="{{ asset('storage/' . $post->image ) }}" alt="image" style="width:21.3rem; height: 200px;">
+
                 <div class="card-body">
-                    <h4>title</h4>
-                    <p>{{ $post->title }}</p>
-                    <h3 class="card-title">Card Description</h3>
-                    <p class="card-text">{{ $post->description }}</p>
+                    
+                        @foreach ($post->tags as $tag)
+                            
+                            <span class="badge bg-secondary">{{ $tag->name }}</span>
+
+                        @endforeach                        
+
+                    
+                    <p class="card-text fw-bold h5 my-3">{{ $post->title }}</p>
+
+                    <img src="{{asset('storage/' . $post->user->user_image)}}" alt="user_image" style="width: 50px; height: 50px; border-radius: 50%;">
+                    <p class="d-inline ms-2" style="font-size: 18px">{{ $post->user->name }}</p>
+
+                    <a href=" {{ route('posts.show' , $post->id) }} " class="d-block mt-2">Read More >></a><br>
+
                     <hr>
-                    <a href=" {{ route('posts.show' , $post->id) }} " class="btn btn-outline-primary">Show</a>
-                    <a href=" {{ route('posts.edit' , $post->id) }} " class="btn btn-outline-primary">Edit</a>
-                    <form action="{{ route('posts.destroy' , $post->id) }}" method="POST" class="d-inline-block">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-outline-danger">Delete</button>
-                    </form>
+
+                    <div class="buttons">
+
+                        @if(Auth::check())
+                                @if(Auth::user()->id === $post->user_id)
+                                <a href=" {{ route('posts.edit' , $post->id) }} " class="btn btn-outline-primary">Edit</a>
+                                @endif
+
+                            <a href=" {{ route('posts.comments' , $post->id) }} " class="btn btn-outline-success">Comments</a>
+                            
+                                @if(Auth::user()->id === $post->user_id)
+                                    <form action="{{ route('posts.destroy' , $post->id) }}" method="POST" class="d-inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                    </form>
+                                @endif 
+                        @endif           
+                        
+                    </div>
                 </div>
             </div>
 
         @empty
             <h2 class="alert alert-danger mt-3 text-center">There is No Data To Show</h2>
         @endforelse
+        
     </div>
 
 @endsection

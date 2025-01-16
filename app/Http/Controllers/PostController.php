@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Tag;
 use App\Models\User;
 use Dotenv\Validator;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -17,8 +19,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
-        return view('posts.index', compact("posts"));
+        $posts = Post::with('tags')->get();
+        return view('posts.index', compact('posts'));
     }
 
     /**
@@ -26,8 +28,9 @@ class PostController extends Controller
      */
     public function create()
     {
-        $this->authorize('manageUser', User::class);
-        return view('posts.create');
+        $tags = Tag::all();
+        return view('posts.create', compact('tags'));
+
     }
 
     /**
@@ -37,37 +40,41 @@ class PostController extends Controller
     {
         // Validate Fields
         $request->validate([
+            'category'=> 'required | min:3',
             'title'=> 'required | min:3',
             'description'=> 'required | min:3',
-            'image.*'=> 'required | image | mimes:jpeg,png,jpg,gif' // 'image.*' => to check each image individually
+            'image'=> 'required | image | mimes:jpeg,png,jpg,gif', // 'image.*' => to check each image individually
+            'tags'=> 'array',
+            'tags.*' => 'exists:tags,id'
         ]);
-
-        $imagePaths = []; // Array to store the image paths
 
         // Store the Image name and uplode date in the storage folder (storage/images)
         if ($request->hasFile('image')) {
-            foreach ($request->file('image') as $image) {
-                $imageName = $image->getClientOriginalName() . "-" . time();
-                $path = $image->storeAs('images', $imageName, 'public');
-                $imagePaths[] = $path;
-            }
+
+            $imageName = $request->file('image')->store('images', 'public');
+            
         }
 
-        $imageNameJSON = json_encode($imagePaths); // to convert array to json and image path encryption.
-
-        Post::create([
+        $post =  Post::create([
+            'category'=> $request->input('category'),
             'title'=> $request->input('title'),
             'description'=> $request->input('description'),
-            'image'=> $imageNameJSON
+            'image'=> $imageName,
+            'user_id'=> Auth::id(),
         ]);
 
+        if (isset($post->tags)) {
+
+            $post->tags()->attach($post->tags);
+            
+        }
+
+        // dd($request);
 
         // Message to confirm Post creation
         session()->flash('success', 'Post Created Successfully');
 
         return redirect()->route('posts.index');
-
-        // dd($imageNameJSON);
 
     }
 
@@ -82,9 +89,16 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Post $post)
+    public function edit($id)
     {
-        return view('posts.edit', ['post' => $post]);
+        $post = Post::with('tags')->findOrFail($id);
+
+        $tags = Tag::all();
+
+        $this->authorize('edit posts');
+
+        return view('posts.edit', compact('post', 'tags'));
+
     }
 
     /**
@@ -94,30 +108,32 @@ class PostController extends Controller
     {
         // Validate Fields
         $request->validate([
+            'category'=> 'required | min:3',
             'title'=> 'required | min:3',
-            'description'=> 'required | min:3', 
+            'description'=> 'required | min:3',
+            'image'=> 'required | image | mimes:jpeg,png,jpg,gif' 
         ]);
-
-        $imagePaths = []; // Array to store the image paths
 
         // Store the Image name and uplode date in the storage folder (storage/images)
         if ($request->hasFile('image')) {
-            foreach ($request->file('image') as $image) {
-                $imageName = $image->getClientOriginalName() . "-" . time();
-                $path = $image->storeAs('images', $imageName, 'public');
-                $imagePaths[] = $path;
-            }
-        }else{
-            $imagePaths = json_decode($post->image, true); // true : to convert json string to array
+
+            $imageName = $request->file('image')->store('images', 'public');
+            
         }
-
-        $imageNameJSON = json_encode($imagePaths); // to convert array to json and image path encryption.
-
+        
         $post->update([
+            'category'=> $request->input('category'),
             'title'=> $request->input('title'),
             'description'=> $request->input('description'),
-            'image'=> $imageNameJSON
+            'image'=> $imageName,
         ]);
+
+
+        if (isset($post->tags)) {
+
+            $post->tags()->attach($post->tags);
+            
+        }
 
         // Message to confirm Post creation
         session()->flash('updated', 'Post Updated Successfully');
@@ -130,6 +146,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        $this->authorize('delete posts');
         $post->delete();
         session()->flash('deleted', 'Post Deleted Successfully');
         return redirect()->route('posts.index');
